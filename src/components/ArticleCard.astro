@@ -1,0 +1,100 @@
+---
+import type { ImageMetadata } from 'astro';
+import { Image } from 'astro:assets';
+
+interface Props {
+  title: string;
+  description: string;
+  slug: string;
+  /** URL complète, ex: /paddles/selkirk-vanguard-2-review/ */
+  url: string;
+  image: { src: ImageMetadata; alt: string };
+  date: Date;
+  /** Label de catégorie affiché (ex: "Règles", "Technique") */
+  category?: string;
+  /** Temps de lecture en minutes */
+  readingTime?: number;
+  /** Note sur 10 — affichée si fournie */
+  rating?: number;
+}
+
+const {
+  title,
+  description,
+  url,
+  image,
+  date,
+  category,
+  readingTime,
+  rating,
+} = Astro.props;
+
+const formattedDate = date.toLocaleDateString('fr-FR', {
+  year: 'numeric',
+  month: 'short',
+  day: 'numeric',
+});
+---
+
+<a
+  href={url}
+  class="card group flex flex-col overflow-hidden hover:border-primary transition-colors no-underline"
+>
+  <!-- Image -->
+  <div class="overflow-hidden bg-slate-50">
+    <Image
+      src={image.src}
+      alt={image.alt}
+      width={480}
+      height={270}
+      class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+      loading="lazy"
+    />
+  </div>
+
+  <!-- Contenu -->
+  <div class="p-5 flex flex-col gap-2 flex-1">
+
+    <!-- Badges -->
+    <div class="flex items-center gap-2 flex-wrap">
+      {category && (
+        <span class="inline-block bg-primary/10 text-primary text-xs font-semibold px-2 py-0.5 rounded-full">
+          {category}
+        </span>
+      )}
+      {rating !== undefined && (
+        <span class="inline-flex items-center gap-1 bg-amber-50 text-amber-700 text-xs font-semibold px-2 py-0.5 rounded-full font-mono">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+          </svg>
+          {rating}/10
+        </span>
+      )}
+    </div>
+
+    <!-- Titre -->
+    <h3 class="font-bold text-dark text-base leading-snug group-hover:text-primary transition-colors">
+      {title}
+    </h3>
+
+    <!-- Description -->
+    <p class="text-sm text-slate-500 leading-relaxed line-clamp-2 flex-1">
+      {description}
+    </p>
+
+    <!-- Méta -->
+    <div class="flex items-center justify-between text-xs text-slate-400 pt-1 mt-auto">
+      <time datetime={date.toISOString()}>{formattedDate}</time>
+      {readingTime !== undefined && readingTime > 0 && (
+        <span class="flex items-center gap-1">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+          {readingTime} min
+        </span>
+      )}
+    </div>
+
+  </div>
+</a>

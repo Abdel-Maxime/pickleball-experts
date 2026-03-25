@@ -1,0 +1,47 @@
+---
+interface Props {
+  href: string;
+  label: string;
+  type: 'amazon' | 'direct';
+  class?: string;
+}
+
+const { href, label, type, class: className } = Astro.props;
+
+const isAmazon = type === 'amazon';
+---
+
+<a
+  href={href}
+  rel="nofollow sponsored noopener"
+  target="_blank"
+  class:list={[
+    'inline-flex items-center justify-center gap-2 px-5 py-3 rounded-lg font-semibold text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
+    isAmazon
+      ? 'bg-[#FF9900] text-black hover:bg-[#e68900] focus-visible:ring-[#FF9900]'
+      : 'bg-primary text-white hover:bg-primary-dark focus-visible:ring-primary',
+    className,
+  ]}
+>
+  {isAmazon ? (
+    <!-- Icône Amazon -->
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M13.958 10.09c0 1.232.029 2.256-.591 3.351-.502.891-1.301 1.438-2.186 1.438-1.214 0-1.922-.924-1.922-2.292 0-2.692 2.415-3.182 4.7-3.182v.685zm3.186 7.705c-.209.189-.512.201-.745.074-1.047-.872-1.234-1.276-1.814-2.106-1.734 1.767-2.962 2.297-5.209 2.297-2.66 0-4.731-1.641-4.731-4.925 0-2.565 1.391-4.309 3.37-5.164 1.715-.754 4.11-.891 5.942-1.095v-.41c0-.753.06-1.642-.384-2.294-.385-.579-1.124-.818-1.775-.818-1.205 0-2.277.618-2.54 1.898-.054.285-.261.567-.549.582l-3.061-.331c-.259-.058-.548-.266-.472-.66C5.502.955 8.466 0 11.11 0c1.35 0 3.116.359 4.179 1.381 1.35 1.261 1.222 2.942 1.222 4.773v4.325c0 1.299.539 1.869 1.047 2.572.179.251.218.553-.009.738l-2.405 2.006z"/>
+      <path d="M20.556 17.99c-2.56 1.896-6.274 2.906-9.47 2.906-4.479 0-8.507-1.657-11.556-4.408-.239-.216-.026-.511.263-.343 3.294 1.917 7.365 3.071 11.573 3.071 2.836 0 5.954-.588 8.824-1.807.433-.185.795.284.366.581z"/>
+      <path d="M21.654 16.738c-.327-.42-2.162-.199-2.988-.1-.251.031-.289-.189-.063-.347 1.464-1.03 3.867-.733 4.148-.388.281.348-.073 2.75-1.449 3.897-.211.176-.413.082-.319-.149.309-.77.999-2.494.671-2.913z"/>
+    </svg>
+  ) : (
+    <!-- Icône panier -->
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+      <circle cx="9" cy="21" r="1"/>
+      <circle cx="20" cy="21" r="1"/>
+      <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+    </svg>
+  )}
+  {label}
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+    <polyline points="15 3 21 3 21 9"/>
+    <line x1="10" y1="14" x2="21" y2="3"/>
+  </svg>
+</a>
