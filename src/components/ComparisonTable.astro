@@ -1,0 +1,135 @@
+---
+import AffiliateButton from './AffiliateButton.astro';
+
+interface Product {
+  name: string;
+  brand: string;
+  affiliateUrl: string;
+  amazonAsin?: string;
+  rating: number;
+  highlighted: boolean;
+  pros: string[];
+  cons: string[];
+}
+
+interface Props {
+  products: Product[];
+  verdict: string;
+}
+
+const { products, verdict } = Astro.props;
+---
+
+<div class="space-y-6">
+
+  <!-- Tableau comparatif (scroll horizontal sur mobile) -->
+  <div class="overflow-x-auto rounded-[12px] border border-slate-200">
+    <table class="w-full text-sm border-collapse">
+      <thead>
+        <tr class="bg-slate-50 border-b border-slate-200">
+          <th class="text-left px-4 py-3 font-semibold text-slate-500 w-32">Critère</th>
+          {products.map((p) => (
+            <th
+              class:list={[
+                'px-4 py-3 font-bold text-dark text-center',
+                p.highlighted && 'bg-primary/5 text-primary',
+              ]}
+            >
+              <div class="flex flex-col items-center gap-1">
+                {p.highlighted && (
+                  <span class="text-xs bg-primary text-white px-2 py-0.5 rounded-full font-semibold">
+                    Meilleur choix
+                  </span>
+                )}
+                <span>{p.name}</span>
+                <span class="text-xs font-normal text-slate-400">{p.brand}</span>
+              </div>
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Note globale -->
+        <tr class="border-b border-slate-100">
+          <td class="px-4 py-3 text-slate-500 font-medium">Note</td>
+          {products.map((p) => (
+            <td class:list={['px-4 py-3 text-center', p.highlighted && 'bg-primary/5']}>
+              <span class="font-mono font-bold text-dark">{p.rating}</span>
+              <span class="text-slate-400 text-xs">/10</span>
+            </td>
+          ))}
+        </tr>
+
+        <!-- Points forts -->
+        <tr class="border-b border-slate-100 align-top">
+          <td class="px-4 py-3 text-slate-500 font-medium">Points forts</td>
+          {products.map((p) => (
+            <td class:list={['px-4 py-3', p.highlighted && 'bg-primary/5']}>
+              <ul class="space-y-1 list-none m-0 p-0">
+                {p.pros.map((pro) => (
+                  <li class="flex items-start gap-1.5 text-slate-600 text-xs">
+                    <svg class="shrink-0 mt-0.5 text-emerald-500" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                      <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                    {pro}
+                  </li>
+                ))}
+              </ul>
+            </td>
+          ))}
+        </tr>
+
+        <!-- Points faibles -->
+        <tr class="border-b border-slate-100 align-top">
+          <td class="px-4 py-3 text-slate-500 font-medium">Points faibles</td>
+          {products.map((p) => (
+            <td class:list={['px-4 py-3', p.highlighted && 'bg-primary/5']}>
+              <ul class="space-y-1 list-none m-0 p-0">
+                {p.cons.map((con) => (
+                  <li class="flex items-start gap-1.5 text-slate-600 text-xs">
+                    <svg class="shrink-0 mt-0.5 text-rose-400" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                      <line x1="18" y1="6" x2="6" y2="18"/>
+                      <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                    {con}
+                  </li>
+                ))}
+              </ul>
+            </td>
+          ))}
+        </tr>
+
+        <!-- CTA -->
+        <tr>
+          <td class="px-4 py-3 text-slate-500 font-medium">Acheter</td>
+          {products.map((p) => (
+            <td class:list={['px-4 py-4 text-center', p.highlighted && 'bg-primary/5']}>
+              {p.amazonAsin ? (
+                <AffiliateButton
+                  href={`https://www.amazon.fr/dp/${p.amazonAsin}?tag=votre-tag-21`}
+                  label="Amazon"
+                  type="amazon"
+                  class="text-xs px-3 py-2"
+                />
+              ) : (
+                <AffiliateButton
+                  href={p.affiliateUrl}
+                  label="Voir l'offre"
+                  type="direct"
+                  class="text-xs px-3 py-2"
+                />
+              )}
+            </td>
+          ))}
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Verdict -->
+  <div class="card p-5 bg-primary/5 border-primary/20">
+    <p class="text-xs font-semibold uppercase tracking-wider text-primary mb-2">Notre verdict</p>
+    <p class="text-slate-700 leading-relaxed">{verdict}</p>
+  </div>
+
+</div>

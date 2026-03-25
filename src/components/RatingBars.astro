@@ -1,0 +1,41 @@
+---
+interface RatingAxis {
+  label: string;
+  value: number; // sur 10
+}
+
+interface Props {
+  axes: RatingAxis[];
+  overall: number;
+}
+
+const { axes, overall } = Astro.props;
+---
+
+<div class="card p-5 space-y-4">
+  <!-- Note globale -->
+  <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+    <span class="font-bold text-dark">Note globale</span>
+    <span class="font-mono text-2xl font-bold text-primary">{overall}<span class="text-sm text-slate-400 font-normal">/10</span></span>
+  </div>
+
+  <!-- Barres par axe -->
+  {axes.map(({ label, value }) => (
+    <div>
+      <div class="flex items-center justify-between mb-1.5">
+        <span class="text-sm text-slate-600">{label}</span>
+        <span class="font-mono text-sm font-semibold text-dark">{value}/10</span>
+      </div>
+      <div class="h-2 bg-slate-100 rounded-full overflow-hidden">
+        <div
+          class="h-full bg-primary rounded-full transition-all"
+          style={`width: ${value * 10}%`}
+          role="progressbar"
+          aria-valuenow={value}
+          aria-valuemin={0}
+          aria-valuemax={10}
+        />
+      </div>
+    </div>
+  ))}
+</div>

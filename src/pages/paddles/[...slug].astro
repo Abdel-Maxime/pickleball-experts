@@ -1,0 +1,123 @@
+---
+import { getCollection, render } from 'astro:content';
+import ArticleLayout from '../../layouts/ArticleLayout.astro';
+import ProductBox from '../../components/ProductBox.astro';
+import RatingBars from '../../components/RatingBars.astro';
+import AffiliateButton from '../../components/AffiliateButton.astro';
+import ArticleCard from '../../components/ArticleCard.astro';
+import { readingTime } from '../../utils/readingTime';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('paddles', ({ data }) => !data.draft);
+  return entries.map((entry) => ({
+    params: { slug: entry.id.replace(/\.mdx?$/, '') },
+    props:  { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content, headings } = await render(entry);
+
+const rt = readingTime(entry.body ?? '');
+
+const amazonUrl = entry.data.amazonAsin
+  ? `https://www.amazon.fr/dp/${entry.data.amazonAsin}?tag=votre-tag-21`
+  : undefined;
+
+// Articles similaires : autres paddles partageant au moins un tag
+const allPaddles = await getCollection('paddles', ({ data }) => !data.draft);
+const related = allPaddles
+  .filter((p) => {
+    if (p.id === entry.id) return false;
+    return p.data.tags.some((t) => entry.data.tags.includes(t));
+  })
+  .slice(0, 3)
+  .map((p) => ({
+    title:       p.data.title,
+    url:         `/paddles/${p.id.replace(/\.mdx?$/, '')}/`,
+    description: p.data.description,
+    image:       p.data.image,
+    date:        p.data.publishDate,
+    readingTime: readingTime(p.body ?? ''),
+  }));
+
+const ratingAxes = [
+  { label: 'Puissance', value: entry.data.rating.power   },
+  { label: 'Contrôle',  value: entry.data.rating.control },
+  { label: 'Spin',      value: entry.data.rating.spin    },
+  { label: 'Toucher',   value: entry.data.rating.touch   },
+];
+---
+
+<ArticleLayout
+  title={entry.data.title}
+  description={entry.data.description}
+  image={entry.data.image}
+  publishDate={entry.data.publishDate}
+  updatedDate={entry.data.updatedDate}
+  author={entry.data.author}
+  collection="paddles"
+  collectionLabel="Raquettes"
+  affiliateUrl={entry.data.affiliateUrl}
+  headings={headings}
+  relatedArticles={related}
+>
+
+  <!-- ProductBox en haut -->
+  <ProductBox
+    name={entry.data.model}
+    brand={entry.data.brand}
+    image={entry.data.image}
+    price={entry.data.specs.price}
+    rating={entry.data.rating.overall}
+    affiliateUrl={entry.data.affiliateUrl}
+    amazonAsin={entry.data.amazonAsin}
+    pros={entry.data.pros}
+    cons={entry.data.cons}
+    highlighted={entry.data.featured}
+  />
+
+  <!-- Tableau specs -->
+  <div class="my-8 overflow-x-auto rounded-[12px] border border-slate-200">
+    <table class="w-full text-sm border-collapse">
+      <caption class="text-left px-4 py-2 font-semibold text-dark text-base">Caractéristiques techniques</caption>
+      <tbody>
+        {[
+          ['Poids',       entry.data.specs.weight],
+          ['Grip',        entry.data.specs.grip],
+          ['Âme',         entry.data.specs.core],
+          ['Surface',     entry.data.specs.face],
+          ['Prix indicatif', `${entry.data.specs.price} €`],
+        ].map(([label, value]) => (
+          <tr class="border-t border-slate-100 even:bg-slate-50">
+            <td class="px-4 py-2.5 font-medium text-slate-600 w-48">{label}</td>
+            <td class="px-4 py-2.5 font-mono text-dark">{value}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Notes par axe -->
+  <div class="my-8">
+    <RatingBars axes={ratingAxes} overall={entry.data.rating.overall} />
+  </div>
+
+  <!-- Contenu MDX -->
+  <Content />
+
+  <!-- Verdict -->
+  <div class="my-8 card p-5 bg-primary/5 border-primary/20">
+    <p class="text-xs font-semibold uppercase tracking-wider text-primary mb-2">Notre verdict</p>
+    <p class="text-slate-700 leading-relaxed">{entry.data.verdict}</p>
+  </div>
+
+  <!-- CTA final -->
+  <div class="my-8 flex flex-wrap gap-3">
+    {amazonUrl && (
+      <AffiliateButton href={amazonUrl} label="Voir sur Amazon" type="amazon" />
+    )}
+    <AffiliateButton href={entry.data.affiliateUrl} label="Voir la meilleure offre" type="direct" />
+  </div>
+
+</ArticleLayout>

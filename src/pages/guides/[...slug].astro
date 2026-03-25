@@ -1,0 +1,54 @@
+---
+import { getCollection, render } from 'astro:content';
+import ArticleLayout from '../../layouts/ArticleLayout.astro';
+import { readingTime } from '../../utils/readingTime';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('guides', ({ data }) => !data.draft);
+  return entries.map((entry) => ({
+    params: { slug: entry.id.replace(/\.mdx?$/, '') },
+    props:  { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content, headings } = await render(entry);
+
+const categoryLabels: Record<string, string> = {
+  rules: 'Règles', strategy: 'Stratégie',
+  technique: 'Technique', gear: 'Équipement',
+};
+
+// Articles similaires : autres guides de même catégorie ou niveau
+const allGuides = await getCollection('guides', ({ data }) => !data.draft);
+const related = allGuides
+  .filter((g) => {
+    if (g.id === entry.id) return false;
+    return g.data.category === entry.data.category || g.data.level === entry.data.level;
+  })
+  .slice(0, 3)
+  .map((g) => ({
+    title:       g.data.title,
+    url:         `/guides/${g.id.replace(/\.mdx?$/, '')}/`,
+    description: g.data.description,
+    image:       g.data.image,
+    date:        g.data.publishDate,
+    category:    categoryLabels[g.data.category] ?? g.data.category,
+    readingTime: readingTime(g.body ?? ''),
+  }));
+---
+
+<ArticleLayout
+  title={entry.data.title}
+  description={entry.data.description}
+  image={entry.data.image}
+  publishDate={entry.data.publishDate}
+  updatedDate={entry.data.updatedDate}
+  author={entry.data.author}
+  collection="guides"
+  collectionLabel="Guides"
+  headings={headings}
+  relatedArticles={related}
+>
+  <Content />
+</ArticleLayout>

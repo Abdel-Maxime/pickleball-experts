@@ -1,0 +1,59 @@
+---
+import { getCollection, render } from 'astro:content';
+import ArticleLayout from '../../layouts/ArticleLayout.astro';
+import ComparisonTable from '../../components/ComparisonTable.astro';
+import { readingTime } from '../../utils/readingTime';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('comparisons', ({ data }) => !data.draft);
+  return entries.map((entry) => ({
+    params: { slug: entry.id.replace(/\.mdx?$/, '') },
+    props:  { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content, headings } = await render(entry);
+
+// Première URL affiliée trouvée parmi les produits (pour le banner disclosure)
+const firstAffiliateUrl = entry.data.products[0]?.affiliateUrl;
+
+// Articles similaires : autres comparatifs
+const allComparisons = await getCollection('comparisons', ({ data }) => !data.draft);
+const related = allComparisons
+  .filter((c) => {
+    if (c.id === entry.id) return false;
+    return c.data.tags.some((t) => entry.data.tags.includes(t));
+  })
+  .slice(0, 3)
+  .map((c) => ({
+    title:       c.data.title,
+    url:         `/comparatifs/${c.id.replace(/\.mdx?$/, '')}/`,
+    description: c.data.description,
+    image:       c.data.image,
+    date:        c.data.publishDate,
+    readingTime: readingTime(c.body ?? ''),
+  }));
+---
+
+<ArticleLayout
+  title={entry.data.title}
+  description={entry.data.description}
+  image={entry.data.image}
+  publishDate={entry.data.publishDate}
+  updatedDate={entry.data.updatedDate}
+  author={entry.data.author}
+  collection="comparatifs"
+  collectionLabel="Comparatifs"
+  affiliateUrl={firstAffiliateUrl}
+  headings={headings}
+  relatedArticles={related}
+>
+
+  <!-- Tableau comparatif en haut -->
+  <ComparisonTable products={entry.data.products} verdict={entry.data.verdict} />
+
+  <!-- Contenu MDX -->
+  <Content />
+
+</ArticleLayout>
