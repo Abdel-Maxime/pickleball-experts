@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+# Exclure les drafts de l'indexation
+Disallow: /drafts/
+
+# Sitemap
+Sitemap: https://mon-domaine.com/sitemap-index.xml

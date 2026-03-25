@@ -1,0 +1,81 @@
+# ============================================================
+# Sécurité
+# ============================================================
+
+# Empêcher l'affichage dans des iframes (clickjacking)
+Header always set X-Frame-Options "SAMEORIGIN"
+
+# Empêcher le MIME-type sniffing
+Header always set X-Content-Type-Options "nosniff"
+
+# Activer la protection XSS (navigateurs anciens)
+Header always set X-XSS-Protection "1; mode=block"
+
+# Referrer policy
+Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+# ============================================================
+# Cache-Control — assets statiques
+# ============================================================
+
+# Images optimisées Astro (_astro/) → cache long terme (immutable)
+<FilesMatch "^\/_astro\/.*\.(webp|jpg|jpeg|png|gif|svg|ico|woff2?|css|js)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+</FilesMatch>
+
+# Fonts locales
+<FilesMatch "\.(woff2?|ttf|otf|eot)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+</FilesMatch>
+
+# Images dans /public (sans hash Astro) → cache 1 semaine
+<FilesMatch "\.(webp|jpg|jpeg|png|gif|svg|ico)$">
+    Header set Cache-Control "public, max-age=604800, must-revalidate"
+</FilesMatch>
+
+# HTML → pas de cache (toujours frais)
+<FilesMatch "\.html$">
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+    Header set Pragma "no-cache"
+    Header set Expires "0"
+</FilesMatch>
+
+# Sitemap et robots → courte durée
+<FilesMatch "(sitemap.*\.xml|robots\.txt)$">
+    Header set Cache-Control "public, max-age=86400"
+</FilesMatch>
+
+# ============================================================
+# Compression GZIP
+# ============================================================
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/css application/javascript
+    AddOutputFilterByType DEFLATE application/json application/xml text/xml
+    AddOutputFilterByType DEFLATE image/svg+xml font/woff2
+</IfModule>
+
+# ============================================================
+# URLs propres — redirections trailing slash
+# ============================================================
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Forcer HTTPS
+    RewriteCond %{HTTPS} off
+    RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+    # Supprimer www (optionnel — décommenter si souhaité)
+    # RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+    # RewriteRule ^ https://%1%{REQUEST_URI} [L,R=301]
+
+    # Servir index.html pour les routes sans extension (SSG Astro)
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME}/index.html -f
+    RewriteRule ^(.*)$ $1/index.html [L]
+</IfModule>
+
+# ============================================================
+# Pages d'erreur
+# ============================================================
+ErrorDocument 404 /404.html
