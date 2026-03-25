@@ -1,0 +1,250 @@
+---
+import { SEO } from 'astro-seo';
+import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
+import '../styles/global.css';
+import type { ImageMetadata } from 'astro';
+
+interface Props {
+  title: string;
+  description?: string;
+  /** Image OG (déjà optimisée par Astro) */
+  ogImage?: ImageMetadata;
+  /** URL canonique override (défaut : URL courante) */
+  canonical?: string;
+  /** Données pour le JSON-LD Article */
+  article?: {
+    publishDate: Date;
+    updatedDate?: Date;
+    author: string;
+    image?: ImageMetadata;
+  };
+}
+
+const {
+  title,
+  description = SITE_DESCRIPTION,
+  ogImage,
+  canonical,
+  article,
+} = Astro.props;
+
+const canonicalUrl = canonical ?? new URL(Astro.url.pathname, Astro.site).toString();
+const ogImageUrl   = ogImage
+  ? new URL(ogImage.src, Astro.site).toString()
+  : new URL('/og-default.jpg', Astro.site).toString();
+
+const currentPath = Astro.url.pathname;
+
+const navLinks = [
+  { href: '/paddles/',     label: 'Raquettes' },
+  { href: '/guides/',      label: 'Guides' },
+  { href: '/comparatifs/', label: 'Comparatifs' },
+];
+
+// JSON-LD Article (conditionnel)
+const jsonLd = article
+  ? JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'Article',
+      headline: title,
+      description,
+      datePublished: article.publishDate.toISOString(),
+      ...(article.updatedDate && { dateModified: article.updatedDate.toISOString() }),
+      author: {
+        '@type': 'Person',
+        name: article.author,
+      },
+      publisher: {
+        '@type': 'Organization',
+        name: SITE_TITLE,
+        url: Astro.site?.toString(),
+      },
+      ...(article.image && { image: new URL(article.image.src, Astro.site).toString() }),
+      mainEntityOfPage: { '@type': 'WebPage', '@id': canonicalUrl },
+    })
+  : null;
+---
+
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <!-- Preconnect Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&family=DM+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+
+    <SEO
+      title={title}
+      titleDefault={SITE_TITLE}
+      titleTemplate={`%s — ${SITE_TITLE}`}
+      description={description}
+      canonical={canonicalUrl}
+      openGraph={{
+        basic: {
+          title,
+          type: article ? 'article' : 'website',
+          image: ogImageUrl,
+          url: canonicalUrl,
+        },
+        optional: { description, siteName: SITE_TITLE, locale: 'fr_FR' },
+        ...(article && {
+          article: {
+            publishedTime: article.publishDate.toISOString(),
+            ...(article.updatedDate && { modifiedTime: article.updatedDate.toISOString() }),
+            authors: [article.author],
+          },
+        }),
+      }}
+      twitter={{
+        card: 'summary_large_image',
+        title,
+        description,
+        image: ogImageUrl,
+      }}
+    />
+
+    {jsonLd && <script type="application/ld+json" set:html={jsonLd} />}
+  </head>
+
+  <body class="min-h-screen flex flex-col text-dark font-sans">
+
+    <!-- Navbar sticky -->
+    <header class="sticky top-0 z-50 bg-white border-b border-slate-100 shadow-sm">
+      <nav class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+
+        <!-- Logo -->
+        <a href="/" class="flex items-center gap-2 font-bold text-dark text-lg shrink-0">
+          <span class="w-7 h-7 rounded-md bg-primary flex items-center justify-center text-white text-xs font-bold leading-none">P</span>
+          <span>{SITE_TITLE}</span>
+        </a>
+
+        <!-- Liens principaux (desktop) -->
+        <ul class="hidden sm:flex items-center gap-1 list-none m-0 p-0">
+          {navLinks.map(({ href, label }) => {
+            const isActive = currentPath.startsWith(href);
+            return (
+              <li>
+                <a
+                  href={href}
+                  class:list={[
+                    'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
+                    isActive
+                      ? 'bg-primary/10 text-primary font-semibold'
+                      : 'text-dark/70 hover:text-dark hover:bg-slate-50',
+                  ]}
+                >
+                  {label}
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+
+        <!-- Menu mobile (burger) -->
+        <button
+          id="menu-toggle"
+          class="sm:hidden p-2 rounded-lg text-dark/70 hover:text-dark hover:bg-slate-50"
+          aria-label="Ouvrir le menu"
+          aria-expanded="false"
+        >
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path fill-rule="evenodd" d="M3 5h14a1 1 0 010 2H3a1 1 0 010-2zm0 4h14a1 1 0 010 2H3a1 1 0 010-2zm0 4h14a1 1 0 010 2H3a1 1 0 010-2z" clip-rule="evenodd"/>
+          </svg>
+        </button>
+
+      </nav>
+
+      <!-- Menu mobile déroulant -->
+      <div id="mobile-menu" class="hidden sm:hidden border-t border-slate-100 bg-white px-4 pb-3">
+        <ul class="flex flex-col gap-1 list-none m-0 p-0 pt-2">
+          {navLinks.map(({ href, label }) => {
+            const isActive = currentPath.startsWith(href);
+            return (
+              <li>
+                <a
+                  href={href}
+                  class:list={[
+                    'block px-3 py-2 rounded-lg text-sm font-medium',
+                    isActive ? 'bg-primary/10 text-primary font-semibold' : 'text-dark/70',
+                  ]}
+                >
+                  {label}
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    </header>
+
+    <!-- Contenu principal -->
+    <main class="flex-1">
+      <slot />
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-50 border-t border-slate-200 mt-16">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 py-10">
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-8 mb-8">
+          <div>
+            <p class="font-bold text-dark mb-2">{SITE_TITLE}</p>
+            <p class="text-sm text-slate-500 leading-relaxed">
+              Conseils et avis indépendants pour choisir votre raquette de pickleball.
+            </p>
+          </div>
+          <div>
+            <p class="font-semibold text-dark text-sm mb-3">Navigation</p>
+            <ul class="space-y-1 list-none m-0 p-0">
+              {navLinks.map(({ href, label }) => (
+                <li><a href={href} class="text-sm text-slate-500 hover:text-primary transition-colors">{label}</a></li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <p class="font-semibold text-dark text-sm mb-3">Légal</p>
+            <ul class="space-y-1 list-none m-0 p-0">
+              <li><a href="/mentions-legales/" class="text-sm text-slate-500 hover:text-primary transition-colors">Mentions légales</a></li>
+              <li><a href="/politique-de-confidentialite/" class="text-sm text-slate-500 hover:text-primary transition-colors">Politique de confidentialité</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Disclosure affilié -->
+        <div class="border-t border-slate-200 pt-6">
+          <p class="text-xs text-slate-400 leading-relaxed max-w-3xl">
+            <strong class="text-slate-500">Disclosure affilié :</strong> Ce site participe à des programmes d'affiliation,
+            dont Amazon Associates. Certains liens peuvent générer une commission si vous effectuez un achat,
+            sans surcoût pour vous. Cela nous permet de maintenir ce site gratuitement et de continuer à vous
+            fournir des avis indépendants.
+          </p>
+          <p class="text-xs text-slate-400 mt-2">
+            &copy; {new Date().getFullYear()} {SITE_TITLE}. Tous droits réservés.
+          </p>
+        </div>
+
+      </div>
+    </footer>
+
+  </body>
+</html>
+
+<!-- Menu mobile toggle (Intersection Observer autorisé, comportement UI minimal) -->
+<script>
+  const toggle = document.getElementById('menu-toggle');
+  const menu   = document.getElementById('mobile-menu');
+  toggle?.addEventListener('click', () => {
+    const open = menu?.classList.toggle('hidden') === false;
+    toggle.setAttribute('aria-expanded', String(open));
+  });
+</script>

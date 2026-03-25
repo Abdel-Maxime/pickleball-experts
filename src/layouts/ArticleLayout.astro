@@ -1,0 +1,258 @@
+---
+import type { ImageMetadata } from 'astro';
+import { Image } from 'astro:assets';
+import BaseLayout from './BaseLayout.astro';
+
+export interface Heading {
+  depth: number;   // 2 = H2, 3 = H3
+  slug: string;
+  text: string;
+}
+
+export interface RelatedArticle {
+  title: string;
+  url: string;
+  description: string;
+  image: { src: ImageMetadata; alt: string };
+  date: Date;
+  category?: string;
+  readingTime?: number;
+}
+
+interface Props {
+  title: string;
+  description: string;
+  image: { src: ImageMetadata; alt: string };
+  publishDate: Date;
+  updatedDate?: Date;
+  author: string;
+  /** Slug de la collection parente, ex: 'paddles' */
+  collection: string;
+  /** Label lisible de la collection, ex: 'Raquettes' */
+  collectionLabel: string;
+  /** URL affiliée — déclenche le banner disclosure */
+  affiliateUrl?: string;
+  /** Titres H2/H3 issus de entry.render() */
+  headings?: Heading[];
+  /** Articles similaires calculés dans la page */
+  relatedArticles?: RelatedArticle[];
+}
+
+const {
+  title,
+  description,
+  image,
+  publishDate,
+  updatedDate,
+  author,
+  collection,
+  collectionLabel,
+  affiliateUrl,
+  headings = [],
+  relatedArticles = [],
+} = Astro.props;
+
+// Temps de lecture : calculé à partir du slot (non disponible ici), passé en prop optionnel
+// → Les pages peuvent le calculer via body.split(/\s+/).length / 200
+// Pour la mise en page, on affiche le badge si > 0
+const wordCount = 0; // placeholder, les pages passeront readingTime
+// Filtre : uniquement H2 et H3 pour la TOC
+const tocHeadings = headings.filter((h) => h.depth === 2 || h.depth === 3);
+
+const formattedPublish = publishDate.toLocaleDateString('fr-FR', {
+  year: 'numeric', month: 'long', day: 'numeric',
+});
+const formattedUpdated = updatedDate?.toLocaleDateString('fr-FR', {
+  year: 'numeric', month: 'long', day: 'numeric',
+});
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  ogImage={image.src}
+  article={{ publishDate, updatedDate, author, image: image.src }}
+>
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+
+    <!-- Breadcrumb -->
+    <nav aria-label="Fil d'Ariane" class="mb-6">
+      <ol class="flex items-center gap-1.5 text-sm text-slate-500 list-none m-0 p-0 flex-wrap">
+        <li><a href="/" class="hover:text-primary transition-colors">Accueil</a></li>
+        <li aria-hidden="true" class="text-slate-300">/</li>
+        <li>
+          <a href={`/${collection}/`} class="hover:text-primary transition-colors capitalize">
+            {collectionLabel}
+          </a>
+        </li>
+        <li aria-hidden="true" class="text-slate-300">/</li>
+        <li class="text-dark font-medium truncate max-w-[200px] sm:max-w-none" aria-current="page">
+          {title}
+        </li>
+      </ol>
+    </nav>
+
+    <!-- En-tête article -->
+    <header class="mb-8">
+      <h1 class="text-3xl sm:text-4xl font-bold text-dark leading-tight mb-4">{title}</h1>
+      <p class="text-lg text-slate-500 mb-5">{description}</p>
+
+      <!-- Méta (date + badge mis à jour) -->
+      <div class="flex items-center flex-wrap gap-3 text-sm text-slate-500">
+        <time datetime={publishDate.toISOString()}>
+          Publié le {formattedPublish}
+        </time>
+        {updatedDate && (
+          <span class="inline-flex items-center gap-1 bg-primary/10 text-primary text-xs font-semibold px-2.5 py-1 rounded-full">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+              <path d="M23 4v6h-6M1 20v-6h6"/>
+              <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+            </svg>
+            Mis à jour le {formattedUpdated}
+          </span>
+        )}
+        <span class="text-slate-400">Par {author}</span>
+      </div>
+    </header>
+
+    <!-- Image hero -->
+    <div class="mb-8 rounded-[12px] overflow-hidden">
+      <Image
+        src={image.src}
+        alt={image.alt}
+        width={1200}
+        height={630}
+        class="w-full object-cover"
+        loading="eager"
+      />
+    </div>
+
+    <!-- Disclosure banner affilié (conditionnel) -->
+    {affiliateUrl && (
+      <div class="mb-8 flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-[12px] px-4 py-3 text-sm text-amber-800">
+        <svg class="shrink-0 mt-0.5" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <p class="m-0">
+          <strong>Liens affiliés :</strong> cet article contient des liens affiliés. Si vous achetez via ces liens,
+          nous percevons une commission sans surcoût pour vous. Cela nous aide à financer nos tests indépendants.
+        </p>
+      </div>
+    )}
+
+    <!-- Layout à deux colonnes : contenu + sidebar TOC -->
+    <div class="lg:grid lg:grid-cols-[1fr_260px] lg:gap-12 items-start">
+
+      <!-- Contenu principal -->
+      <div>
+        <div class="prose prose-slate max-w-none
+                    prose-headings:font-bold prose-headings:text-dark
+                    prose-a:text-primary prose-a:no-underline hover:prose-a:underline
+                    prose-img:rounded-[12px]
+                    prose-code:text-dark prose-code:bg-slate-100 prose-code:px-1 prose-code:rounded">
+          <slot />
+        </div>
+      </div>
+
+      <!-- Sidebar TOC (sticky, visible >= lg) -->
+      {tocHeadings.length > 0 && (
+        <aside class="hidden lg:block">
+          <div class="sticky top-24 card p-5">
+            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">
+              Dans cet article
+            </p>
+            <nav aria-label="Table des matières">
+              <ul class="space-y-1 list-none m-0 p-0 text-sm">
+                {tocHeadings.map((h) => (
+                  <li>
+                    <a
+                      href={`#${h.slug}`}
+                      data-toc-link
+                      class:list={[
+                        'block py-1 transition-colors text-slate-500 hover:text-primary',
+                        h.depth === 3 && 'pl-3 text-xs',
+                      ]}
+                    >
+                      {h.text}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          </div>
+        </aside>
+      )}
+
+    </div>
+
+    <!-- Articles similaires -->
+    {relatedArticles.length > 0 && (
+      <section class="mt-16 pt-10 border-t border-slate-200">
+        <h2 class="text-xl font-bold text-dark mb-6">Articles similaires</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {relatedArticles.slice(0, 3).map((article) => (
+            <a
+              href={article.url}
+              class="card group flex flex-col overflow-hidden hover:border-primary transition-colors no-underline"
+            >
+              <div class="overflow-hidden">
+                <Image
+                  src={article.image.src}
+                  alt={article.image.alt}
+                  width={400}
+                  height={220}
+                  class="w-full h-44 object-cover group-hover:scale-105 transition-transform duration-300"
+                  loading="lazy"
+                />
+              </div>
+              <div class="p-4 flex flex-col gap-1.5">
+                <p class="font-semibold text-dark text-sm leading-snug group-hover:text-primary transition-colors">
+                  {article.title}
+                </p>
+                <p class="text-xs text-slate-500 line-clamp-2">{article.description}</p>
+                <p class="text-xs text-slate-400 mt-auto pt-1">
+                  {article.date.toLocaleDateString('fr-FR', { year: 'numeric', month: 'short', day: 'numeric' })}
+                </p>
+              </div>
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
+
+  </div>
+</BaseLayout>
+
+<!-- TOC Intersection Observer (JS client autorisé) -->
+<script>
+  const tocLinks = document.querySelectorAll<HTMLAnchorElement>('[data-toc-link]');
+
+  if (tocLinks.length > 0) {
+    const setActive = (slug: string) => {
+      tocLinks.forEach((link) => {
+        const isActive = link.getAttribute('href') === `#${slug}`;
+        link.classList.toggle('text-primary', isActive);
+        link.classList.toggle('font-medium', isActive);
+        link.classList.toggle('text-slate-500', !isActive);
+      });
+    };
+
+    const headingEls = Array.from(
+      document.querySelectorAll<HTMLHeadingElement>('article h2, article h3')
+    );
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries.filter((e) => e.isIntersecting);
+        if (visible.length > 0) {
+          setActive(visible[0].target.id);
+        }
+      },
+      { rootMargin: '-80px 0px -60% 0px', threshold: 0 }
+    );
+
+    headingEls.forEach((el) => observer.observe(el));
+  }
+</script>

@@ -1,5 +1,4 @@
-// Place any global data in this file.
-// You can import this data from anywhere in your site by using the `import` keyword.
-
-export const SITE_TITLE = 'Astro Blog';
-export const SITE_DESCRIPTION = 'Welcome to my website!';
+export const SITE_TITLE = 'Pickleball Expert';
+export const SITE_DESCRIPTION =
+  'Avis, guides et comparatifs de raquettes de pickleball pour choisir le meilleur équipement.';
+export const SITE_URL = 'https://mon-domaine.com';
