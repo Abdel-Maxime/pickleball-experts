@@ -19,7 +19,7 @@ export default defineConfig({
 
       serialize(item) {
         // Hubs principaux → priorité 0.9
-        const hubPattern = /\/(paddles|guides|comparatifs)\/?$/;
+        const hubPattern = /\/(raquettes|guides|comparatifs)\/?$/;
         if (hubPattern.test(item.url)) {
           item.priority = 0.9;
         } else {
