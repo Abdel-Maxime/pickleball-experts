@@ -9,7 +9,6 @@ import tailwindcss from '@tailwindcss/vite';
 export default defineConfig({
   output: 'static',
   site: 'https://www.pickleball-experts.fr',
-  base: '/pickleball-experts',
 
   integrations: [
     mdx(),
