@@ -5,4 +5,4 @@ Allow: /
 Disallow: /drafts/
 
 # Sitemap
-Sitemap: https://mon-domaine.com/sitemap-index.xml
+Sitemap: https://www.pickleball-experts.fr/sitemap-index.xml
