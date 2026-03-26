@@ -8,7 +8,7 @@ import tailwindcss from '@tailwindcss/vite';
 // https://astro.build/config
 export default defineConfig({
   output: 'static',
-  site: 'https://mon-domaine.com',
+  site: 'https://www.pickleball-experts.fr',
 
   integrations: [
     mdx(),

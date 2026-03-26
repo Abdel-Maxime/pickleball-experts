@@ -2,6 +2,7 @@
 import type { ImageMetadata } from 'astro';
 import { Image } from 'astro:assets';
 import BaseLayout from './BaseLayout.astro';
+import AuthorCard from '../components/AuthorCard.astro';
 
 export interface Heading {
   depth: number;   // 2 = H2, 3 = H3
@@ -36,6 +37,14 @@ interface Props {
   headings?: Heading[];
   /** Articles similaires calculés dans la page */
   relatedArticles?: RelatedArticle[];
+  /** Données auteur pour l'encart de fin d'article */
+  authorData?: {
+    name: string;
+    role: string;
+    shortBio: string;
+    slug: string;
+    avatar?: ImageMetadata;
+  };
 }
 
 const {
@@ -50,12 +59,12 @@ const {
   affiliateUrl,
   headings = [],
   relatedArticles = [],
+  authorData,
 } = Astro.props;
 
 // Temps de lecture : calculé à partir du slot (non disponible ici), passé en prop optionnel
 // → Les pages peuvent le calculer via body.split(/\s+/).length / 200
 // Pour la mise en page, on affiche le badge si > 0
-const wordCount = 0; // placeholder, les pages passeront readingTime
 // Filtre : uniquement H2 et H3 pour la TOC
 const tocHeadings = headings.filter((h) => h.depth === 2 || h.depth === 3);
 
@@ -78,10 +87,10 @@ const formattedUpdated = updatedDate?.toLocaleDateString('fr-FR', {
     <!-- Breadcrumb -->
     <nav aria-label="Fil d'Ariane" class="mb-6">
       <ol class="flex items-center gap-1.5 text-sm text-slate-500 list-none m-0 p-0 flex-wrap">
-        <li><a href="/" class="hover:text-primary transition-colors">Accueil</a></li>
+        <li><a href="/" class="hover:text-accent transition-colors">Accueil</a></li>
         <li aria-hidden="true" class="text-slate-300">/</li>
         <li>
-          <a href={`/${collection}/`} class="hover:text-primary transition-colors capitalize">
+          <a href={`/${collection}/`} class="hover:text-accent transition-colors capitalize">
             {collectionLabel}
           </a>
         </li>
@@ -94,7 +103,7 @@ const formattedUpdated = updatedDate?.toLocaleDateString('fr-FR', {
 
     <!-- En-tête article -->
     <header class="mb-8">
-      <h1 class="text-3xl sm:text-4xl font-bold text-dark leading-tight mb-4">{title}</h1>
+      <h1 class="text-3xl sm:text-4xl font-display font-bold text-dark leading-tight mb-4">{title}</h1>
       <p class="text-lg text-slate-500 mb-5">{description}</p>
 
       <!-- Méta (date + badge mis à jour) -->
@@ -103,7 +112,7 @@ const formattedUpdated = updatedDate?.toLocaleDateString('fr-FR', {
           Publié le {formattedPublish}
         </time>
         {updatedDate && (
-          <span class="inline-flex items-center gap-1 bg-primary/10 text-primary text-xs font-semibold px-2.5 py-1 rounded-full">
+          <span class="inline-flex items-center gap-1 bg-accent/10 text-accent text-xs font-semibold px-2.5 py-1 rounded-full">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
               <path d="M23 4v6h-6M1 20v-6h6"/>
               <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
@@ -148,10 +157,11 @@ const formattedUpdated = updatedDate?.toLocaleDateString('fr-FR', {
       <!-- Contenu principal -->
       <div>
         <div class="prose prose-slate max-w-none
-                    prose-headings:font-bold prose-headings:text-dark
-                    prose-a:text-primary prose-a:no-underline hover:prose-a:underline
-                    prose-img:rounded-[12px]
-                    prose-code:text-dark prose-code:bg-slate-100 prose-code:px-1 prose-code:rounded">
+                    prose-headings:font-display prose-headings:font-bold prose-headings:text-dark
+                    prose-a:text-accent prose-a:no-underline hover:prose-a:underline
+                    prose-img:rounded-lg
+                    prose-code:text-dark prose-code:bg-surface-alt prose-code:px-1 prose-code:rounded
+                    prose-blockquote:border-l-4 prose-blockquote:border-accent prose-blockquote:not-italic">
           <slot />
         </div>
       </div>
@@ -164,15 +174,15 @@ const formattedUpdated = updatedDate?.toLocaleDateString('fr-FR', {
               Dans cet article
             </p>
             <nav aria-label="Table des matières">
-              <ul class="space-y-1 list-none m-0 p-0 text-sm">
+              <ul class="space-y-0.5 list-none m-0 p-0 text-sm">
                 {tocHeadings.map((h) => (
                   <li>
                     <a
                       href={`#${h.slug}`}
                       data-toc-link
                       class:list={[
-                        'block py-1 transition-colors text-slate-500 hover:text-primary',
-                        h.depth === 3 && 'pl-3 text-xs',
+                        'block py-1.5 px-2 rounded transition-colors text-muted hover:text-accent hover:bg-accent/5 border-l-2 border-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent',
+                        h.depth === 3 && 'pl-4 text-xs ml-2',
                       ]}
                     >
                       {h.text}
@@ -187,6 +197,20 @@ const formattedUpdated = updatedDate?.toLocaleDateString('fr-FR', {
 
     </div>
 
+    <!-- Encart auteur -->
+    {authorData && (
+      <section class="mt-10 pt-8 border-t border-border">
+        <p class="text-xs font-mono uppercase tracking-widest text-muted mb-4">À propos de l'auteur</p>
+        <AuthorCard
+          name={authorData.name}
+          role={authorData.role}
+          shortBio={authorData.shortBio}
+          slug={authorData.slug}
+          avatar={authorData.avatar}
+        />
+      </section>
+    )}
+
     <!-- Articles similaires -->
     {relatedArticles.length > 0 && (
       <section class="mt-16 pt-10 border-t border-slate-200">
@@ -195,7 +219,7 @@ const formattedUpdated = updatedDate?.toLocaleDateString('fr-FR', {
           {relatedArticles.slice(0, 3).map((article) => (
             <a
               href={article.url}
-              class="card group flex flex-col overflow-hidden hover:border-primary transition-colors no-underline"
+              class="card group flex flex-col overflow-hidden hover:border-accent transition-colors no-underline"
             >
               <div class="overflow-hidden">
                 <Image
@@ -208,7 +232,7 @@ const formattedUpdated = updatedDate?.toLocaleDateString('fr-FR', {
                 />
               </div>
               <div class="p-4 flex flex-col gap-1.5">
-                <p class="font-semibold text-dark text-sm leading-snug group-hover:text-primary transition-colors">
+                <p class="font-semibold text-dark text-sm leading-snug group-hover:text-accent transition-colors">
                   {article.title}
                 </p>
                 <p class="text-xs text-slate-500 line-clamp-2">{article.description}</p>
@@ -233,9 +257,11 @@ const formattedUpdated = updatedDate?.toLocaleDateString('fr-FR', {
     const setActive = (slug: string) => {
       tocLinks.forEach((link) => {
         const isActive = link.getAttribute('href') === `#${slug}`;
-        link.classList.toggle('text-primary', isActive);
+        link.classList.toggle('text-accent', isActive);
         link.classList.toggle('font-medium', isActive);
-        link.classList.toggle('text-slate-500', !isActive);
+        link.classList.toggle('text-muted', !isActive);
+        link.classList.toggle('border-accent', isActive);
+        link.classList.toggle('bg-accent/5', isActive);
       });
     };
 

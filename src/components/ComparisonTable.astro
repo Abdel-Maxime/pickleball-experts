@@ -5,7 +5,6 @@ interface Product {
   name: string;
   brand: string;
   affiliateUrl: string;
-  amazonAsin?: string;
   rating: number;
   highlighted: boolean;
   pros: string[];
@@ -22,6 +21,12 @@ const { products, verdict } = Astro.props;
 
 <div class="space-y-6">
 
+  <!-- Indicateur scroll mobile -->
+  <p class="text-xs text-slate-400 flex items-center gap-1 mb-1 sm:hidden" aria-hidden="true">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    Glissez pour voir tout le tableau
+  </p>
+
   <!-- Tableau comparatif (scroll horizontal sur mobile) -->
   <div class="overflow-x-auto rounded-[12px] border border-slate-200">
     <table class="w-full text-sm border-collapse">
@@ -32,12 +37,12 @@ const { products, verdict } = Astro.props;
             <th
               class:list={[
                 'px-4 py-3 font-bold text-dark text-center',
-                p.highlighted && 'bg-primary/5 text-primary',
+                p.highlighted && 'bg-accent/5 text-accent',
               ]}
             >
               <div class="flex flex-col items-center gap-1">
                 {p.highlighted && (
-                  <span class="text-xs bg-primary text-white px-2 py-0.5 rounded-full font-semibold">
+                  <span class="text-xs bg-accent text-white px-2 py-0.5 rounded font-semibold">
                     Meilleur choix
                   </span>
                 )}
@@ -50,10 +55,10 @@ const { products, verdict } = Astro.props;
       </thead>
       <tbody>
         <!-- Note globale -->
-        <tr class="border-b border-slate-100">
+        <tr class="border-b border-slate-100 bg-slate-50/50">
           <td class="px-4 py-3 text-slate-500 font-medium">Note</td>
           {products.map((p) => (
-            <td class:list={['px-4 py-3 text-center', p.highlighted && 'bg-primary/5']}>
+            <td class:list={['px-4 py-3 text-center', p.highlighted && 'bg-accent/5']}>
               <span class="font-mono font-bold text-dark">{p.rating}</span>
               <span class="text-slate-400 text-xs">/10</span>
             </td>
@@ -64,7 +69,7 @@ const { products, verdict } = Astro.props;
         <tr class="border-b border-slate-100 align-top">
           <td class="px-4 py-3 text-slate-500 font-medium">Points forts</td>
           {products.map((p) => (
-            <td class:list={['px-4 py-3', p.highlighted && 'bg-primary/5']}>
+            <td class:list={['px-4 py-3', p.highlighted && 'bg-accent/5']}>
               <ul class="space-y-1 list-none m-0 p-0">
                 {p.pros.map((pro) => (
                   <li class="flex items-start gap-1.5 text-slate-600 text-xs">
@@ -83,7 +88,7 @@ const { products, verdict } = Astro.props;
         <tr class="border-b border-slate-100 align-top">
           <td class="px-4 py-3 text-slate-500 font-medium">Points faibles</td>
           {products.map((p) => (
-            <td class:list={['px-4 py-3', p.highlighted && 'bg-primary/5']}>
+            <td class:list={['px-4 py-3', p.highlighted && 'bg-accent/5']}>
               <ul class="space-y-1 list-none m-0 p-0">
                 {p.cons.map((con) => (
                   <li class="flex items-start gap-1.5 text-slate-600 text-xs">
@@ -103,22 +108,12 @@ const { products, verdict } = Astro.props;
         <tr>
           <td class="px-4 py-3 text-slate-500 font-medium">Acheter</td>
           {products.map((p) => (
-            <td class:list={['px-4 py-4 text-center', p.highlighted && 'bg-primary/5']}>
-              {p.amazonAsin ? (
-                <AffiliateButton
-                  href={`https://www.amazon.fr/dp/${p.amazonAsin}?tag=votre-tag-21`}
-                  label="Amazon"
-                  type="amazon"
-                  class="text-xs px-3 py-2"
-                />
-              ) : (
-                <AffiliateButton
-                  href={p.affiliateUrl}
-                  label="Voir l'offre"
-                  type="direct"
-                  class="text-xs px-3 py-2"
-                />
-              )}
+            <td class:list={['px-4 py-4 text-center', p.highlighted && 'bg-accent/5']}>
+              <AffiliateButton
+                href={p.affiliateUrl}
+                label={p.affiliateUrl.includes('amazon') ? 'Amazon' : "Voir l'offre"}
+                class="text-xs px-3 py-2"
+              />
             </td>
           ))}
         </tr>
@@ -127,8 +122,8 @@ const { products, verdict } = Astro.props;
   </div>
 
   <!-- Verdict -->
-  <div class="card p-5 bg-primary/5 border-primary/20">
-    <p class="text-xs font-semibold uppercase tracking-wider text-primary mb-2">Notre verdict</p>
+  <div class="card p-5 bg-surface-alt border-border">
+    <p class="text-xs font-mono uppercase tracking-widest text-accent mb-2">Notre verdict</p>
     <p class="text-slate-700 leading-relaxed">{verdict}</p>
   </div>
 

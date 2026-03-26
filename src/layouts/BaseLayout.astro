@@ -36,7 +36,7 @@ const ogImageUrl   = ogImage
 const currentPath = Astro.url.pathname;
 
 const navLinks = [
-  { href: '/paddles/',     label: 'Raquettes' },
+  { href: '/raquettes/',     label: 'Raquettes' },
   { href: '/guides/',      label: 'Guides' },
   { href: '/comparatifs/', label: 'Comparatifs' },
 ];
@@ -79,7 +79,7 @@ const jsonLd = article
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&family=DM+Mono:wght@400;500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Outfit:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
 
@@ -118,14 +118,22 @@ const jsonLd = article
 
   <body class="min-h-screen flex flex-col text-dark font-sans">
 
+    <!-- Skip link accessibilité -->
+    <a
+      href="#main-content"
+      class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] focus:px-4 focus:py-2 focus:bg-accent focus:text-white focus:font-semibold focus:rounded-lg focus:shadow-lg"
+    >
+      Aller au contenu
+    </a>
+
     <!-- Navbar sticky -->
-    <header class="sticky top-0 z-50 bg-white border-b border-slate-100 shadow-sm">
+    <header class="sticky top-0 z-50 bg-surface/80 backdrop-blur-lg border-b border-border">
       <nav class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
 
         <!-- Logo -->
-        <a href="/" class="flex items-center gap-2 font-bold text-dark text-lg shrink-0">
-          <span class="w-7 h-7 rounded-md bg-primary flex items-center justify-center text-white text-xs font-bold leading-none">P</span>
-          <span>{SITE_TITLE}</span>
+        <a href="/" class="flex items-center gap-2.5 shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 rounded-lg">
+          <span class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white text-sm font-black leading-none">P</span>
+          <span class="font-display font-bold text-dark text-lg">{SITE_TITLE}</span>
         </a>
 
         <!-- Liens principaux (desktop) -->
@@ -137,10 +145,10 @@ const jsonLd = article
                 <a
                   href={href}
                   class:list={[
-                    'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
+                    'px-4 py-2 rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1',
                     isActive
-                      ? 'bg-primary/10 text-primary font-semibold'
-                      : 'text-dark/70 hover:text-dark hover:bg-slate-50',
+                      ? 'text-accent font-semibold'
+                      : 'text-dark/60 hover:text-dark',
                   ]}
                 >
                   {label}
@@ -153,19 +161,24 @@ const jsonLd = article
         <!-- Menu mobile (burger) -->
         <button
           id="menu-toggle"
-          class="sm:hidden p-2 rounded-lg text-dark/70 hover:text-dark hover:bg-slate-50"
+          class="sm:hidden p-2 rounded-lg text-dark/60 hover:text-dark hover:bg-surface-alt focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
           aria-label="Ouvrir le menu"
           aria-expanded="false"
         >
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <!-- Icône hamburger -->
+          <svg id="icon-burger" width="20" height="20" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
             <path fill-rule="evenodd" d="M3 5h14a1 1 0 010 2H3a1 1 0 010-2zm0 4h14a1 1 0 010 2H3a1 1 0 010-2zm0 4h14a1 1 0 010 2H3a1 1 0 010-2z" clip-rule="evenodd"/>
+          </svg>
+          <!-- Icône croix (visible quand menu ouvert) -->
+          <svg id="icon-close" width="20" height="20" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" class="hidden">
+            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
           </svg>
         </button>
 
       </nav>
 
       <!-- Menu mobile déroulant -->
-      <div id="mobile-menu" class="hidden sm:hidden border-t border-slate-100 bg-white px-4 pb-3">
+      <div id="mobile-menu" class="hidden sm:hidden border-t border-border bg-surface px-4 pb-3">
         <ul class="flex flex-col gap-1 list-none m-0 p-0 pt-2">
           {navLinks.map(({ href, label }) => {
             const isActive = currentPath.startsWith(href);
@@ -175,7 +188,7 @@ const jsonLd = article
                   href={href}
                   class:list={[
                     'block px-3 py-2 rounded-lg text-sm font-medium',
-                    isActive ? 'bg-primary/10 text-primary font-semibold' : 'text-dark/70',
+                    isActive ? 'text-accent font-semibold' : 'text-dark/60',
                   ]}
                 >
                   {label}
@@ -188,47 +201,76 @@ const jsonLd = article
     </header>
 
     <!-- Contenu principal -->
-    <main class="flex-1">
+    <main id="main-content" class="flex-1">
       <slot />
     </main>
 
     <!-- Footer -->
-    <footer class="bg-slate-50 border-t border-slate-200 mt-16">
-      <div class="max-w-6xl mx-auto px-4 sm:px-6 py-10">
+    <footer class="bg-primary mt-16">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 py-12 md:py-16">
 
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-8 mb-8">
-          <div>
-            <p class="font-bold text-dark mb-2">{SITE_TITLE}</p>
-            <p class="text-sm text-slate-500 leading-relaxed">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-10">
+
+          <!-- À propos -->
+          <div class="sm:col-span-2 lg:col-span-1">
+            <p class="font-display font-bold text-white text-lg mb-3">{SITE_TITLE}</p>
+            <p class="text-sm text-white/50 leading-relaxed">
               Conseils et avis indépendants pour choisir votre raquette de pickleball.
             </p>
           </div>
+
+          <!-- Navigation -->
           <div>
-            <p class="font-semibold text-dark text-sm mb-3">Navigation</p>
-            <ul class="space-y-1 list-none m-0 p-0">
+            <p class="text-xs font-mono uppercase tracking-widest text-white/40 mb-4">Navigation</p>
+            <ul class="space-y-2 list-none m-0 p-0">
               {navLinks.map(({ href, label }) => (
-                <li><a href={href} class="text-sm text-slate-500 hover:text-primary transition-colors">{label}</a></li>
+                <li><a href={href} class="text-sm text-white/60 hover:text-accent transition-colors">{label}</a></li>
               ))}
             </ul>
           </div>
+
+          <!-- Légal -->
           <div>
-            <p class="font-semibold text-dark text-sm mb-3">Légal</p>
-            <ul class="space-y-1 list-none m-0 p-0">
-              <li><a href="/mentions-legales/" class="text-sm text-slate-500 hover:text-primary transition-colors">Mentions légales</a></li>
-              <li><a href="/politique-de-confidentialite/" class="text-sm text-slate-500 hover:text-primary transition-colors">Politique de confidentialité</a></li>
+            <p class="text-xs font-mono uppercase tracking-widest text-white/40 mb-4">Légal</p>
+            <ul class="space-y-2 list-none m-0 p-0">
+              <li><a href="/qui-sommes-nous/" class="text-sm text-white/60 hover:text-accent transition-colors">Qui sommes-nous</a></li>
+              <li><a href="/mentions-legales/" class="text-sm text-white/60 hover:text-accent transition-colors">Mentions légales</a></li>
+              <li><a href="/politique-de-confidentialite/" class="text-sm text-white/60 hover:text-accent transition-colors">Politique de confidentialité</a></li>
             </ul>
           </div>
+
+          <!-- Newsletter -->
+          <div>
+            <p class="text-xs font-mono uppercase tracking-widest text-white/40 mb-4">Newsletter</p>
+            <p class="text-sm text-white/50 mb-3 leading-relaxed">Les meilleurs avis dans votre boîte mail.</p>
+            <form class="flex gap-2" aria-label="Inscription newsletter">
+              <label class="sr-only" for="footer-email">Adresse email</label>
+              <input
+                id="footer-email"
+                type="email"
+                placeholder="votre@email.com"
+                class="flex-1 min-w-0 bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-accent transition-colors"
+              />
+              <button
+                type="submit"
+                class="bg-accent hover:bg-accent-dark text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors shrink-0"
+              >
+                OK
+              </button>
+            </form>
+          </div>
+
         </div>
 
-        <!-- Disclosure affilié -->
-        <div class="border-t border-slate-200 pt-6">
-          <p class="text-xs text-slate-400 leading-relaxed max-w-3xl">
-            <strong class="text-slate-500">Disclosure affilié :</strong> Ce site participe à des programmes d'affiliation,
+        <!-- Bas de page -->
+        <div class="border-t border-white/10 pt-8">
+          <p class="text-xs text-white/30 leading-relaxed max-w-3xl">
+            <strong class="text-white/40">Disclosure affilié :</strong> Ce site participe à des programmes d'affiliation,
             dont Amazon Associates. Certains liens peuvent générer une commission si vous effectuez un achat,
             sans surcoût pour vous. Cela nous permet de maintenir ce site gratuitement et de continuer à vous
             fournir des avis indépendants.
           </p>
-          <p class="text-xs text-slate-400 mt-2">
+          <p class="text-xs text-white/30 mt-2">
             &copy; {new Date().getFullYear()} {SITE_TITLE}. Tous droits réservés.
           </p>
         </div>
@@ -241,10 +283,16 @@ const jsonLd = article
 
 <!-- Menu mobile toggle (Intersection Observer autorisé, comportement UI minimal) -->
 <script>
-  const toggle = document.getElementById('menu-toggle');
-  const menu   = document.getElementById('mobile-menu');
+  const toggle     = document.getElementById('menu-toggle');
+  const menu       = document.getElementById('mobile-menu');
+  const iconBurger = document.getElementById('icon-burger');
+  const iconClose  = document.getElementById('icon-close');
+
   toggle?.addEventListener('click', () => {
     const open = menu?.classList.toggle('hidden') === false;
     toggle.setAttribute('aria-expanded', String(open));
+    toggle.setAttribute('aria-label', open ? 'Fermer le menu' : 'Ouvrir le menu');
+    iconBurger?.classList.toggle('hidden', open);
+    iconClose?.classList.toggle('hidden', !open);
   });
 </script>

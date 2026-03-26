@@ -1,0 +1,186 @@
+---
+import type { ImageMetadata } from 'astro';
+import { Image } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+// Chargement dynamique des auteurs
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const { getCollection } = await import('astro:content');
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const auteursRaw = await getCollection('auteurs' as any) as any[];
+
+const auteurs = (auteursRaw as any[]).map((e) => ({
+  slug:     (e.id as string).replace(/\.mdx?$/, ''),
+  name:     e.data.name as string,
+  role:     e.data.role as string,
+  shortBio: e.data.shortBio as string,
+  avatar:   e.data.avatar as ImageMetadata | undefined,
+}));
+
+const methodSteps = [
+  {
+    number: '01',
+    title: 'Sélection',
+    desc: 'Nous identifions les modèles les plus populaires et les nouvelles sorties notables sur le marché.',
+  },
+  {
+    number: '02',
+    title: 'Tests terrain',
+    desc: 'Chaque raquette est jouée lors de plusieurs sessions dans des conditions variées : match, entraînement, différents partenaires.',
+  },
+  {
+    number: '03',
+    title: 'Notation',
+    desc: 'Nous notons chaque paddle sur 5 axes : puissance, contrôle, spin, toucher et rapport qualité-prix.',
+  },
+  {
+    number: '04',
+    title: 'Publication',
+    desc: 'L\'avis est rédigé, relu et publié. Nous le mettons à jour si le modèle évolue ou si de nouvelles informations émergent.',
+  },
+];
+---
+
+<BaseLayout
+  title="Qui sommes-nous — Pickleball Expert"
+  description="Découvrez l'équipe derrière Pickleball Expert : des passionnés indépendants qui testent et comparent les raquettes pour vous aider à choisir."
+>
+
+  <!-- Hero -->
+  <section class="bg-primary text-white">
+    <div class="absolute top-0 left-0 right-0 h-1 bg-accent hidden"></div>
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 py-16 md:py-24">
+      <p class="text-xs font-mono uppercase tracking-widest text-accent mb-3">À propos</p>
+      <h1 class="text-4xl text-white sm:text-5xl font-display font-bold leading-tight mb-5">
+        Un regard honnête<br/>sur le matériel pickleball
+      </h1>
+      <p class="text-white/60 text-lg leading-relaxed max-w-xl">
+        Pickleball Expert est un média indépendant créé par des joueurs, pour des joueurs.
+        Pas de partenariat rémunéré avec les marques. Pas de test bâclé. Juste notre avis sincère.
+      </p>
+    </div>
+  </section>
+
+  <div class="max-w-3xl mx-auto px-4 sm:px-6">
+
+    <!-- Notre mission -->
+    <section class="py-14 md:py-20 border-b border-border">
+      <p class="text-xs font-mono uppercase tracking-widest text-accent mb-3">Mission</p>
+      <h2 class="text-2xl sm:text-3xl font-display font-bold text-dark mb-6">Pourquoi ce site existe</h2>
+      <div class="prose prose-slate max-w-none
+                  prose-headings:font-display prose-p:text-muted prose-p:leading-relaxed">
+        <p>
+          Quand on débute au pickleball — ou qu'on veut progresser — la question du matériel revient très vite.
+          Les raquettes se ressemblent en photo, les descriptions marketing se répètent, et les forums
+          regorgent d'avis contradictoires.
+        </p>
+        <p>
+          On a voulu créer la ressource qu'on aurait aimé avoir : des avis structurés, honnêtes sur les défauts,
+          mis à jour régulièrement, et écrits par des gens qui jouent vraiment.
+        </p>
+        <p>
+          Les liens affiliés (principalement Amazon) nous permettent de maintenir le site et de financer nos tests
+          sans jamais compromettre notre indépendance éditoriale. Nous recommandons uniquement ce que nous utilisons
+          ou ce que nous testerions nous-mêmes.
+        </p>
+      </div>
+    </section>
+
+    <!-- L'équipe -->
+    {auteurs.length > 0 && (
+      <section class="py-14 md:py-20 border-b border-border">
+        <p class="text-xs font-mono uppercase tracking-widest text-accent mb-3">Équipe</p>
+        <h2 class="text-2xl sm:text-3xl font-display font-bold text-dark mb-8">Les auteurs</h2>
+        <div class="space-y-4">
+          {auteurs.map((auteur) => {
+            const initials = auteur.name
+              .split(' ')
+              .map((w: string) => w[0])
+              .slice(0, 2)
+              .join('')
+              .toUpperCase();
+            return (
+              <a
+                href={`/auteurs/${auteur.slug}/`}
+                class="flex items-start gap-4 p-5 bg-surface-alt rounded-lg border border-border hover:border-accent transition-colors group no-underline"
+              >
+                <!-- Avatar -->
+                <div class="shrink-0">
+                  {auteur.avatar ? (
+                    <Image
+                      src={auteur.avatar}
+                      alt={`Photo de ${auteur.name}`}
+                      width={56}
+                      height={56}
+                      class="w-14 h-14 rounded-full object-cover"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div
+                      class="w-14 h-14 rounded-full bg-primary flex items-center justify-center text-white font-display font-bold text-base select-none"
+                      aria-hidden="true"
+                    >
+                      {initials}
+                    </div>
+                  )}
+                </div>
+                <!-- Info -->
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 flex-wrap mb-0.5">
+                    <p class="font-display font-bold text-dark group-hover:text-accent transition-colors">{auteur.name}</p>
+                    <span class="text-xs font-mono uppercase tracking-wider text-muted">{auteur.role}</span>
+                  </div>
+                  <p class="text-sm text-muted leading-relaxed">{auteur.shortBio}</p>
+                </div>
+                <!-- Arrow -->
+                <svg class="shrink-0 mt-1 text-muted group-hover:text-accent transition-colors" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                  <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+              </a>
+            );
+          })}
+        </div>
+      </section>
+    )}
+
+    <!-- Notre méthode -->
+    <section class="py-14 md:py-20 border-b border-border">
+      <p class="text-xs font-mono uppercase tracking-widest text-accent mb-3">Méthode</p>
+      <h2 class="text-2xl sm:text-3xl font-display font-bold text-dark mb-8">Comment on teste</h2>
+      <div class="space-y-6">
+        {methodSteps.map((step) => (
+          <div class="flex gap-5">
+            <span class="font-mono text-2xl font-bold text-border shrink-0 leading-tight w-10">{step.number}</span>
+            <div>
+              <p class="font-display font-semibold text-dark mb-1">{step.title}</p>
+              <p class="text-sm text-muted leading-relaxed">{step.desc}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- Contact / Disclosure -->
+    <section class="py-14 md:py-20">
+      <p class="text-xs font-mono uppercase tracking-widest text-accent mb-3">Transparence</p>
+      <h2 class="text-2xl sm:text-3xl font-display font-bold text-dark mb-6">Affiliation & contact</h2>
+      <div class="prose prose-slate max-w-none prose-p:text-muted prose-p:leading-relaxed">
+        <p>
+          Ce site participe au programme Amazon Associates et à d'autres programmes d'affiliation.
+          Lorsque vous achetez via nos liens, nous percevons une petite commission — sans surcoût pour vous.
+          Ces revenus financent nos tests, notre hébergement et notre temps de rédaction.
+        </p>
+        <p>
+          Nos notes et avis sont établis <strong>avant</strong> de décider si nous incluons un lien affilié,
+          jamais en fonction de la commission potentielle.
+        </p>
+        <p>
+          Une question, une erreur à signaler, une raquette à suggérer ?
+          Contactez-nous à <a href="mailto:contact@pickleball-expert.fr">contact@pickleball-expert.fr</a>.
+        </p>
+      </div>
+    </section>
+
+  </div>
+
+</BaseLayout>

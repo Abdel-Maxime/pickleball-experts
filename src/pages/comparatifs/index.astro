@@ -1,0 +1,56 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ArticleCard from '../../components/ArticleCard.astro';
+import { readingTime } from '../../utils/readingTime';
+
+const allComparatifs = await getCollection('comparatifs', ({ data }) => !data.draft);
+
+const comparatifs = allComparatifs
+  .sort((a, b) => b.data.publishDate.getTime() - a.data.publishDate.getTime())
+  .map((e) => ({
+    title:       e.data.title,
+    description: e.data.description,
+    url:         `/comparatifs/${e.id.replace(/\.mdx?$/, '')}/`,
+    image:       e.data.image,
+    date:        e.data.publishDate,
+    category:    e.data.tags[0] ?? 'Comparatif',
+    readingTime: readingTime(e.body ?? ''),
+  }));
+---
+
+<BaseLayout
+  title="Comparatifs raquettes de pickleball"
+  description="Comparatifs détaillés pour choisir entre les meilleures raquettes de pickleball."
+>
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-10">
+
+    <header class="mb-10">
+      <p class="text-xs font-mono text-accent uppercase tracking-widest mb-2">Versus</p>
+      <h1 class="text-3xl sm:text-4xl font-bold text-dark mb-3">Comparatifs raquettes</h1>
+      <p class="text-slate-500 max-w-2xl">
+        Nos comparatifs côte-à-côte pour choisir entre les meilleures raquettes du marché.
+      </p>
+    </header>
+
+    {comparatifs.length > 0 ? (
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        {comparatifs.map((c) => (
+          <ArticleCard
+            title={c.title}
+            description={c.description}
+            slug={c.url}
+            url={c.url}
+            image={c.image}
+            date={c.date}
+            category={c.category}
+            readingTime={c.readingTime}
+          />
+        ))}
+      </div>
+    ) : (
+      <p class="text-slate-400 text-sm">Aucun comparatif publié pour l'instant.</p>
+    )}
+
+  </div>
+</BaseLayout>

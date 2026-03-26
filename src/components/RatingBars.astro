@@ -12,30 +12,38 @@ interface Props {
 const { axes, overall } = Astro.props;
 ---
 
-<div class="card p-5 space-y-4">
-  <!-- Note globale -->
-  <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-    <span class="font-bold text-dark">Note globale</span>
-    <span class="font-mono text-2xl font-bold text-primary">{overall}<span class="text-sm text-slate-400 font-normal">/10</span></span>
+<div class="card overflow-hidden">
+  <!-- Note globale — fond coloré -->
+  <div class="bg-accent/8 border-b border-accent/15 px-5 py-4 flex items-center justify-between">
+    <div>
+      <p class="text-xs font-mono uppercase tracking-widest text-accent mb-0.5">Note globale</p>
+      <p class="text-sm text-slate-500">Évaluation sur 5 critères</p>
+    </div>
+    <span class="font-mono text-4xl font-bold text-dark leading-none">
+      {overall}
+      <span class="text-lg text-slate-400 font-normal">/10</span>
+    </span>
   </div>
 
   <!-- Barres par axe -->
-  {axes.map(({ label, value }) => (
-    <div>
-      <div class="flex items-center justify-between mb-1.5">
-        <span class="text-sm text-slate-600">{label}</span>
-        <span class="font-mono text-sm font-semibold text-dark">{value}/10</span>
+  <div class="p-5 space-y-4">
+    {axes.map(({ label, value }) => (
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-sm text-slate-600">{label}</span>
+          <span class="font-mono text-sm font-bold text-dark">{value}<span class="text-slate-400 font-normal">/10</span></span>
+        </div>
+        <div class="h-2.5 bg-slate-100 rounded-full overflow-hidden">
+          <div
+            class="h-full bg-accent rounded-full"
+            style={`width: ${value * 10}%`}
+            role="progressbar"
+            aria-valuenow={value}
+            aria-valuemin={0}
+            aria-valuemax={10}
+          />
+        </div>
       </div>
-      <div class="h-2 bg-slate-100 rounded-full overflow-hidden">
-        <div
-          class="h-full bg-primary rounded-full transition-all"
-          style={`width: ${value * 10}%`}
-          role="progressbar"
-          aria-valuenow={value}
-          aria-valuemin={0}
-          aria-valuemax={10}
-        />
-      </div>
-    </div>
-  ))}
+    ))}
+  </div>
 </div>

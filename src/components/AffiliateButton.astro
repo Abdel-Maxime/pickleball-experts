@@ -2,13 +2,12 @@
 interface Props {
   href: string;
   label: string;
-  type: 'amazon' | 'direct';
   class?: string;
 }
 
-const { href, label, type, class: className } = Astro.props;
+const { href, label, class: className } = Astro.props;
 
-const isAmazon = type === 'amazon';
+const isAmazon = href.includes('amazon');
 ---
 
 <a
@@ -18,8 +17,8 @@ const isAmazon = type === 'amazon';
   class:list={[
     'inline-flex items-center justify-center gap-2 px-5 py-3 rounded-lg font-semibold text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
     isAmazon
-      ? 'bg-[#FF9900] text-black hover:bg-[#e68900] focus-visible:ring-[#FF9900]'
-      : 'bg-primary text-white hover:bg-primary-dark focus-visible:ring-primary',
+      ? 'bg-[#c47000] !text-white hover:bg-[#a85f00] focus-visible:ring-[#c47000]'
+      : 'bg-accent !text-white hover:bg-accent-dark focus-visible:ring-accent',
     className,
   ]}
 >

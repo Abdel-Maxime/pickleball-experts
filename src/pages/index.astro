@@ -17,7 +17,7 @@ const stats = [
   { value: '0€',   label: 'Accès gratuit' },
 ];
 
-const allPaddles = await getCollection('paddles', ({ data }) => !data.draft && data.featured);
+const allPaddles = await getCollection('raquettes', ({ data }) => !data.draft && data.featured);
 const allGuides  = await getCollection('guides',  ({ data }) => !data.draft && data.featured);
 
 const featuredPaddles = allPaddles
@@ -26,7 +26,7 @@ const featuredPaddles = allPaddles
   .map((e) => ({
     title:       e.data.title,
     description: e.data.description,
-    url:         `/paddles/${e.id.replace(/\.mdx?$/, '')}/`,
+    url:         `/raquettes/${e.id.replace(/\.mdx?$/, '')}/`,
     image:       e.data.image,
     date:        e.data.publishDate,
     category:    e.data.brand,
@@ -51,20 +51,22 @@ const featuredGuides = allGuides
 <BaseLayout title="Choisir la meilleure raquette de pickleball" description={SITE_DESCRIPTION}>
 
   <!-- Hero -->
-  <section class="bg-gradient-to-br from-dark to-slate-800 text-white">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-20 sm:py-28 flex flex-col items-start gap-6">
-      <span class="inline-block bg-primary/20 text-primary text-sm font-semibold px-3 py-1 rounded-full">
-        Blog d'affiliation pickleball
-      </span>
-      <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight max-w-3xl">
+  <section class="relative bg-primary text-white overflow-hidden">
+    <!-- Accent lime en haut -->
+    <div class="absolute top-0 left-0 right-0 h-1 bg-accent"></div>
+    <!-- Glow décoratif -->
+    <div class="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-accent/10 blur-3xl pointer-events-none" aria-hidden="true"></div>
+
+    <div class="relative max-w-6xl mx-auto px-4 sm:px-6 py-20 sm:py-28 flex flex-col items-start gap-6">
+      <h1 class="text-4xl text-white sm:text-5xl lg:text-6xl font-bold leading-tight max-w-3xl">
         Trouvez la raquette parfaite pour votre jeu
       </h1>
       <p class="text-slate-300 text-lg max-w-xl leading-relaxed">
         Avis détaillés, guides techniques et comparatifs pour choisir votre équipement de pickleball en toute confiance.
       </p>
       <div class="flex flex-wrap gap-3">
-        <a href="/paddles/" class="btn-primary px-6 py-3 text-base">Voir les avis raquettes</a>
-        <a href="/guides/" class="bg-white/10 hover:bg-white/20 text-white font-semibold px-6 py-3 rounded-lg transition-colors text-base">
+        <a href="/raquettes/" class="btn-primary px-6 py-3 text-base">Voir les avis raquettes</a>
+        <a href="/guides/" class="border border-white/30 hover:border-white/60 hover:bg-white/10 text-white font-semibold px-6 py-3 rounded-lg transition-all text-base">
           Lire les guides
         </a>
       </div>
@@ -72,12 +74,12 @@ const featuredGuides = allGuides
   </section>
 
   <!-- Stats rapides -->
-  <section class="border-b border-slate-100">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8 grid grid-cols-2 sm:grid-cols-4 gap-6">
+  <section class="border-b border-slate-100 bg-white">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8 grid grid-cols-2 sm:grid-cols-4 divide-x divide-slate-100">
       {stats.map(({ value, label }) => (
-        <div class="text-center">
-          <p class="font-mono text-2xl font-bold text-primary">{value}</p>
-          <p class="text-sm text-slate-500 mt-0.5">{label}</p>
+        <div class="text-center px-4 first:pl-0 last:pr-0">
+          <p class="font-mono text-3xl font-bold text-accent">{value}</p>
+          <p class="text-xs text-slate-500 mt-1 uppercase tracking-wide">{label}</p>
         </div>
       ))}
     </div>
@@ -87,10 +89,16 @@ const featuredGuides = allGuides
   <section class="max-w-6xl mx-auto px-4 sm:px-6 py-14">
     <div class="flex items-end justify-between mb-8">
       <div>
-        <p class="text-sm font-semibold text-primary uppercase tracking-wider mb-1">Sélection</p>
+        <p class="inline-flex items-center gap-1.5 text-xs font-mono text-accent uppercase tracking-widest mb-2">
+          <span class="w-3 h-0.5 bg-accent rounded-full inline-block"></span>
+          Sélection
+        </p>
         <h2 class="text-2xl sm:text-3xl font-bold text-dark">Meilleures raquettes</h2>
       </div>
-      <a href="/paddles/" class="text-sm font-semibold text-primary hover:underline shrink-0">Voir tout →</a>
+      <a href="/raquettes/" class="text-sm font-semibold text-accent hover:text-accent-dark transition-colors shrink-0 flex items-center gap-1">
+        Voir tout
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
     </div>
     {featuredPaddles.length > 0 ? (
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -114,10 +122,13 @@ const featuredGuides = allGuides
   </section>
 
   <!-- Bandeau CTA guides -->
-  <div class="bg-primary/5 border-y border-primary/10 py-10">
+  <div class="bg-primary py-10">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-      <p class="text-dark font-semibold text-lg">Vous débutez au pickleball ?</p>
-      <a href="/guides/" class="btn-primary px-5 py-2.5 text-sm whitespace-nowrap">Lire nos guides →</a>
+      <div>
+        <p class="text-white font-bold text-lg">Vous débutez au pickleball ?</p>
+        <p class="text-slate-400 text-sm mt-0.5">Nos guides expliquent les règles, la technique et le matériel.</p>
+      </div>
+      <a href="/guides/" class="btn-primary px-5 py-2.5 text-sm whitespace-nowrap shrink-0">Lire nos guides →</a>
     </div>
   </div>
 
@@ -125,10 +136,16 @@ const featuredGuides = allGuides
   <section class="max-w-6xl mx-auto px-4 sm:px-6 py-14">
     <div class="flex items-end justify-between mb-8">
       <div>
-        <p class="text-sm font-semibold text-primary uppercase tracking-wider mb-1">Apprendre</p>
+        <p class="inline-flex items-center gap-1.5 text-xs font-mono text-accent uppercase tracking-widest mb-2">
+          <span class="w-3 h-0.5 bg-accent rounded-full inline-block"></span>
+          Apprendre
+        </p>
         <h2 class="text-2xl sm:text-3xl font-bold text-dark">Guides populaires</h2>
       </div>
-      <a href="/guides/" class="text-sm font-semibold text-primary hover:underline shrink-0">Voir tout →</a>
+      <a href="/guides/" class="text-sm font-semibold text-accent hover:text-accent-dark transition-colors shrink-0 flex items-center gap-1">
+        Voir tout
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
     </div>
     {featuredGuides.length > 0 ? (
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">

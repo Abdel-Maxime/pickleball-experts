@@ -1,5 +1,6 @@
 ---
 import { getCollection, render } from 'astro:content';
+import type { ImageMetadata } from 'astro';
 import ArticleLayout from '../../layouts/ArticleLayout.astro';
 import ProductBox from '../../components/ProductBox.astro';
 import RatingBars from '../../components/RatingBars.astro';
@@ -8,7 +9,7 @@ import ArticleCard from '../../components/ArticleCard.astro';
 import { readingTime } from '../../utils/readingTime';
 
 export async function getStaticPaths() {
-  const entries = await getCollection('paddles', ({ data }) => !data.draft);
+  const entries = await getCollection('raquettes', ({ data }) => !data.draft);
   return entries.map((entry) => ({
     params: { slug: entry.id.replace(/\.mdx?$/, '') },
     props:  { entry },
@@ -20,12 +21,23 @@ const { Content, headings } = await render(entry);
 
 const rt = readingTime(entry.body ?? '');
 
-const amazonUrl = entry.data.amazonAsin
-  ? `https://www.amazon.fr/dp/${entry.data.amazonAsin}?tag=votre-tag-21`
+// Auteur — cast nécessaire jusqu'à la première exécution d'`astro dev` qui régénère les types
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const auteurs = await getCollection('auteurs' as any);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const authorEntry = (auteurs as any[]).find((a) => a.id.replace(/\.mdx?$/, '') === entry.data.author);
+const authorData: { name: string; role: string; shortBio: string; slug: string; avatar?: ImageMetadata } | undefined = authorEntry
+  ? {
+      name:     authorEntry.data.name as string,
+      role:     authorEntry.data.role as string,
+      shortBio: authorEntry.data.shortBio as string,
+      slug:     (authorEntry.id as string).replace(/\.mdx?$/, ''),
+      avatar:   authorEntry.data.avatar as ImageMetadata | undefined,
+    }
   : undefined;
 
 // Articles similaires : autres paddles partageant au moins un tag
-const allPaddles = await getCollection('paddles', ({ data }) => !data.draft);
+const allPaddles = await getCollection('raquettes', ({ data }) => !data.draft);
 const related = allPaddles
   .filter((p) => {
     if (p.id === entry.id) return false;
@@ -34,7 +46,7 @@ const related = allPaddles
   .slice(0, 3)
   .map((p) => ({
     title:       p.data.title,
-    url:         `/paddles/${p.id.replace(/\.mdx?$/, '')}/`,
+    url:         `/raquettes/${p.id.replace(/\.mdx?$/, '')}/`,
     description: p.data.description,
     image:       p.data.image,
     date:        p.data.publishDate,
@@ -56,11 +68,12 @@ const ratingAxes = [
   publishDate={entry.data.publishDate}
   updatedDate={entry.data.updatedDate}
   author={entry.data.author}
-  collection="paddles"
+  collection="raquettes"
   collectionLabel="Raquettes"
   affiliateUrl={entry.data.affiliateUrl}
   headings={headings}
   relatedArticles={related}
+  authorData={authorData}
 >
 
   <!-- ProductBox en haut -->
@@ -71,7 +84,6 @@ const ratingAxes = [
     price={entry.data.specs.price}
     rating={entry.data.rating.overall}
     affiliateUrl={entry.data.affiliateUrl}
-    amazonAsin={entry.data.amazonAsin}
     pros={entry.data.pros}
     cons={entry.data.cons}
     highlighted={entry.data.featured}
@@ -107,17 +119,17 @@ const ratingAxes = [
   <Content />
 
   <!-- Verdict -->
-  <div class="my-8 card p-5 bg-primary/5 border-primary/20">
-    <p class="text-xs font-semibold uppercase tracking-wider text-primary mb-2">Notre verdict</p>
+  <div class="my-8 card p-5 bg-surface-alt border-border">
+    <p class="text-xs font-mono uppercase tracking-widest text-accent mb-2">Notre verdict</p>
     <p class="text-slate-700 leading-relaxed">{entry.data.verdict}</p>
   </div>
 
   <!-- CTA final -->
   <div class="my-8 flex flex-wrap gap-3">
-    {amazonUrl && (
-      <AffiliateButton href={amazonUrl} label="Voir sur Amazon" type="amazon" />
-    )}
-    <AffiliateButton href={entry.data.affiliateUrl} label="Voir la meilleure offre" type="direct" />
+    <AffiliateButton
+      href={entry.data.affiliateUrl}
+      label={entry.data.affiliateUrl.includes('amazon') ? 'Voir sur Amazon' : 'Voir la meilleure offre'}
+    />
   </div>
 
 </ArticleLayout>

@@ -38,16 +38,16 @@ const formattedDate = date.toLocaleDateString('fr-FR', {
 
 <a
   href={url}
-  class="card group flex flex-col overflow-hidden hover:border-primary transition-colors no-underline"
+  class="card card-lift group flex flex-col overflow-hidden hover:border-accent no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
 >
-  <!-- Image -->
-  <div class="overflow-hidden bg-slate-50">
+  <!-- Image — ratio 16/9 fixe -->
+  <div class="overflow-hidden aspect-video">
     <Image
       src={image.src}
       alt={image.alt}
       width={480}
       height={270}
-      class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
       loading="lazy"
     />
   </div>
@@ -58,7 +58,7 @@ const formattedDate = date.toLocaleDateString('fr-FR', {
     <!-- Badges -->
     <div class="flex items-center gap-2 flex-wrap">
       {category && (
-        <span class="inline-block bg-primary/10 text-primary text-xs font-semibold px-2 py-0.5 rounded-full">
+        <span class="inline-block bg-accent/10 text-accent text-xs font-mono uppercase tracking-wider px-2 py-0.5 rounded">
           {category}
         </span>
       )}
@@ -73,12 +73,12 @@ const formattedDate = date.toLocaleDateString('fr-FR', {
     </div>
 
     <!-- Titre -->
-    <h3 class="font-bold text-dark text-base leading-snug group-hover:text-primary transition-colors">
+    <h3 class="font-bold text-dark text-base leading-snug group-hover:text-accent transition-colors">
       {title}
     </h3>
 
     <!-- Description -->
-    <p class="text-sm text-slate-500 leading-relaxed line-clamp-2 flex-1">
+    <p class="text-sm text-slate-500 leading-relaxed line-clamp-3 flex-1">
       {description}
     </p>
 

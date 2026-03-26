@@ -5,8 +5,8 @@ import { z } from 'astro/zod';
 /* ============================================================
    Collection : paddles — Avis de raquettes (cœur du site)
    ============================================================ */
-const paddles = defineCollection({
-  loader: glob({ base: './src/content/paddles', pattern: '**/*.{md,mdx}' }),
+const raquettes = defineCollection({
+  loader: glob({ base: './src/content/raquettes', pattern: '**/*.{md,mdx}' }),
   schema: ({ image }) =>
     z.object({
       title:       z.string(),
@@ -35,7 +35,6 @@ const paddles = defineCollection({
       }),
 
       affiliateUrl: z.url(),
-      amazonAsin:   z.string().optional(), // ex: "B0XXXXXXXX"
 
       rating: z.object({
         overall: z.number().min(0).max(10),
@@ -81,8 +80,8 @@ const guides = defineCollection({
 /* ============================================================
    Collection : comparisons — Comparatifs produits
    ============================================================ */
-const comparisons = defineCollection({
-  loader: glob({ base: './src/content/comparisons', pattern: '**/*.{md,mdx}' }),
+const comparatifs = defineCollection({
+  loader: glob({ base: './src/content/comparatifs', pattern: '**/*.{md,mdx}' }),
   schema: ({ image }) =>
     z.object({
       title:       z.string(),
@@ -106,7 +105,6 @@ const comparisons = defineCollection({
           name:        z.string(),
           brand:       z.string(),
           affiliateUrl: z.url(),
-          amazonAsin:  z.string().optional(),
           rating:      z.number().min(0).max(10),
           highlighted: z.boolean().default(false),
           pros:        z.array(z.string()),
@@ -117,6 +115,25 @@ const comparisons = defineCollection({
 });
 
 /* ============================================================
+   Collection : auteurs — Profils des rédacteurs
+   ============================================================ */
+const auteurs = defineCollection({
+  loader: glob({ base: './src/content/auteurs', pattern: '**/*.{md,mdx}' }),
+  schema: ({ image }) =>
+    z.object({
+      name:     z.string(),
+      role:     z.string(),
+      shortBio: z.string(),
+      avatar:   image().optional(),
+      social: z.object({
+        twitter:   z.string().optional(),
+        linkedin:  z.string().optional(),
+        instagram: z.string().optional(),
+      }).optional(),
+    }),
+});
+
+/* ============================================================
    Export
    ============================================================ */
-export const collections = { paddles, guides, comparisons };
+export const collections = { raquettes, guides, comparatifs, auteurs };

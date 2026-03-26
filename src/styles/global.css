@@ -5,24 +5,40 @@
 @plugin "@tailwindcss/typography";
 
 /* ============================================================
-   Design tokens
+   Design tokens — Editorial Sport Minimal
    ============================================================ */
 @theme {
-  /* Couleurs */
-  --color-primary:      #84cc16;   /* lime — couleur du court */
-  --color-primary-dark: #65a30d;   /* lime-600, hover */
-  --color-dark:         #1a1a2e;   /* texte principal */
-  --color-card:         #f8fafc;   /* fond cards */
+  /* === Palette === */
+  /* Ancrage éditorial — bleu-noir profond */
+  --color-primary:      #0f1923;
+  --color-primary-dark: #1a2d3e;
 
-  /* Typographie */
-  --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "DM Mono", ui-monospace, monospace;
+  /* Accent unique — corail sportif */
+  --color-accent:       #e8614d;
+  --color-accent-dark:  #c94d3b;
 
-  /* Border radius */
-  --radius-card: 12px;
+  /* Surfaces chaudes */
+  --color-surface:      #faf9f7;
+  --color-surface-alt:  #f0efec;
 
-  /* Ombres */
-  --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.06);
+  /* Nuances */
+  --color-muted:        #6b7280;
+  --color-border:       #e5e2dd;
+
+  /* Rétrocompatibilité — utilisé par les composants existants */
+  --color-dark:         #1a1a1a;
+  --color-card:         #ffffff;
+
+  /* === Typographie === */
+  --font-display: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+  --font-sans:    "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --font-mono:    "JetBrains Mono", ui-monospace, monospace;
+
+  /* === Forme === */
+  --radius-card: 8px;
+
+  /* === Ombres === */
+  --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.04);
 }
 
 /* ============================================================
@@ -33,16 +49,20 @@
     font-family: var(--font-sans);
     color: var(--color-dark);
     -webkit-font-smoothing: antialiased;
+    scroll-behavior: smooth;
+    scroll-padding-top: 5rem;
   }
 
   body {
-    background-color: #ffffff;
+    background-color: var(--color-surface);
+    line-height: 1.6;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-sans);
+    font-family: var(--font-display);
     font-weight: 700;
     color: var(--color-dark);
+    scroll-margin-top: 5rem;
   }
 }
 
@@ -54,19 +74,34 @@
     background-color: var(--color-card);
     border-radius: var(--radius-card);
     box-shadow: var(--shadow-card);
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--color-border);
+  }
+
+  .card-lift {
+    transition: box-shadow 0.3s ease, transform 0.2s ease, border-color 0.2s ease;
+  }
+  .card-lift:hover {
+    box-shadow: 0 6px 20px 0 rgb(0 0 0 / 0.08), 0 2px 8px -2px rgb(0 0 0 / 0.05);
+    transform: translateY(-2px);
   }
 
   .btn-primary {
-    background-color: var(--color-primary);
+    display: inline-flex;
+    align-items: center;
+    background-color: var(--color-accent);
     color: #ffffff;
     font-weight: 600;
     border-radius: 8px;
     padding: 0.625rem 1.25rem;
-    transition: background-color 0.15s ease;
+    transition: background-color 0.15s ease, box-shadow 0.15s ease;
   }
   .btn-primary:hover {
-    background-color: var(--color-primary-dark);
+    background-color: var(--color-accent-dark);
+    box-shadow: 0 4px 12px 0 rgb(232 97 77 / 0.28);
+  }
+  .btn-primary:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
   }
 }
 
@@ -77,16 +112,17 @@
   .prose {
     --tw-prose-body:          var(--color-dark);
     --tw-prose-headings:      var(--color-dark);
-    --tw-prose-links:         var(--color-primary-dark);
+    --tw-prose-links:         var(--color-accent-dark);
     --tw-prose-bold:          var(--color-dark);
-    --tw-prose-counters:      #64748b;
-    --tw-prose-bullets:       var(--color-primary);
-    --tw-prose-hr:            #e2e8f0;
+    --tw-prose-counters:      var(--color-muted);
+    --tw-prose-bullets:       var(--color-accent);
+    --tw-prose-hr:            var(--color-border);
     --tw-prose-quotes:        var(--color-dark);
-    --tw-prose-quote-borders: var(--color-primary);
+    --tw-prose-quote-borders: var(--color-accent);
     --tw-prose-code:          var(--color-dark);
-    --tw-prose-pre-code:      #e2e8f0;
-    --tw-prose-pre-bg:        var(--color-dark);
+    --tw-prose-pre-code:      var(--color-border);
+    --tw-prose-pre-bg:        var(--color-primary);
     max-width: 72ch;
+    line-height: 1.75;
   }
 }
