@@ -1,0 +1,137 @@
+---
+/**
+ * Cookie Consent banner — vanilla-cookieconsent + Google Consent Mode V2
+ * RGPD-compliant, styled to match the design system.
+ */
+---
+
+<script>
+  import 'vanilla-cookieconsent/dist/cookieconsent.css';
+  import * as CookieConsent from 'vanilla-cookieconsent';
+
+  /**
+   * Push a consent update to the dataLayer for Google Consent Mode V2
+   */
+  function updateGoogleConsent(
+    analyticsGranted: boolean,
+    adsGranted: boolean,
+  ) {
+    window.dataLayer = window.dataLayer || [];
+    function gtag(..._args: any[]) {
+      window.dataLayer.push(arguments);
+    }
+
+    gtag('consent', 'update', {
+      analytics_storage: analyticsGranted ? 'granted' : 'denied',
+      ad_storage: adsGranted ? 'granted' : 'denied',
+      ad_user_data: adsGranted ? 'granted' : 'denied',
+      ad_personalization: adsGranted ? 'granted' : 'denied',
+    });
+  }
+
+  CookieConsent.run({
+    guiOptions: {
+      consentModal: {
+        layout: 'box inline',
+        position: 'bottom left',
+      },
+      preferencesModal: {
+        layout: 'box',
+      },
+    },
+
+    categories: {
+      necessary: {
+        enabled: true,
+        readOnly: true,
+      },
+      analytics: {
+        autoClear: {
+          cookies: [
+            { name: /^_ga/ },
+            { name: '_gid' },
+          ],
+        },
+      },
+      marketing: {
+        autoClear: {
+          cookies: [
+            { name: /^_gcl/ },
+            { name: '_fbp' },
+          ],
+        },
+      },
+    },
+
+    onFirstConsent: ({ cookie }) => {
+      const analyticsAccepted = cookie.categories.includes('analytics');
+      const marketingAccepted = cookie.categories.includes('marketing');
+      updateGoogleConsent(analyticsAccepted, marketingAccepted);
+    },
+
+    onConsent: ({ cookie }) => {
+      const analyticsAccepted = cookie.categories.includes('analytics');
+      const marketingAccepted = cookie.categories.includes('marketing');
+      updateGoogleConsent(analyticsAccepted, marketingAccepted);
+    },
+
+    onChange: ({ cookie }) => {
+      const analyticsAccepted = cookie.categories.includes('analytics');
+      const marketingAccepted = cookie.categories.includes('marketing');
+      updateGoogleConsent(analyticsAccepted, marketingAccepted);
+    },
+
+    language: {
+      default: 'fr',
+      translations: {
+        fr: {
+          consentModal: {
+            title: 'Nous utilisons des cookies',
+            description:
+              'Ce site utilise des cookies essentiels au fonctionnement du site et des cookies optionnels pour mesurer l\'audience et personnaliser les publicites. Vous pouvez accepter ou configurer vos preferences.',
+            acceptAllBtn: 'Tout accepter',
+            acceptNecessaryBtn: 'Refuser',
+            showPreferencesBtn: 'Personnaliser',
+          },
+          preferencesModal: {
+            title: 'Gestion des cookies',
+            acceptAllBtn: 'Tout accepter',
+            acceptNecessaryBtn: 'Tout refuser',
+            savePreferencesBtn: 'Enregistrer',
+            closeIconLabel: 'Fermer',
+            sections: [
+              {
+                title: 'Utilisation des cookies',
+                description:
+                  'Nous utilisons des cookies pour assurer le bon fonctionnement du site, mesurer le trafic et, avec votre consentement, personnaliser les contenus publicitaires. Vous pouvez modifier vos choix a tout moment.',
+              },
+              {
+                title: 'Cookies strictement necessaires',
+                description:
+                  'Ces cookies sont indispensables au fonctionnement du site. Ils ne peuvent pas etre desactives.',
+                linkedCategory: 'necessary',
+              },
+              {
+                title: 'Cookies analytiques',
+                description:
+                  'Ces cookies nous permettent de mesurer l\'audience du site et d\'ameliorer nos contenus (Google Analytics).',
+                linkedCategory: 'analytics',
+              },
+              {
+                title: 'Cookies marketing',
+                description:
+                  'Ces cookies permettent de personnaliser les publicites et de mesurer leur performance.',
+                linkedCategory: 'marketing',
+              },
+              {
+                title: 'Plus d\'informations',
+                description:
+                  'Pour toute question relative a notre politique de cookies, veuillez <a href="/politique-de-confidentialite/">consulter notre politique de confidentialite</a>.',
+              },
+            ],
+          },
+        },
+      },
+    },
+  });
+</script>

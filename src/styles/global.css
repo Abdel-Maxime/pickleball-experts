@@ -106,6 +106,37 @@
 }
 
 /* ============================================================
+   Cookie Consent — surcharges design system
+   ============================================================ */
+#cc-main {
+  --cc-font-family: var(--font-sans);
+  --cc-bg: var(--color-surface);
+  --cc-primary-color: var(--color-dark);
+  --cc-secondary-color: var(--color-muted);
+  --cc-btn-primary-bg: var(--color-accent);
+  --cc-btn-primary-color: #fff;
+  --cc-btn-primary-border-color: var(--color-accent);
+  --cc-btn-primary-hover-bg: var(--color-accent-dark);
+  --cc-btn-primary-hover-color: #fff;
+  --cc-btn-primary-hover-border-color: var(--color-accent-dark);
+  --cc-btn-secondary-bg: var(--color-surface-alt);
+  --cc-btn-secondary-color: var(--color-dark);
+  --cc-btn-secondary-border-color: var(--color-border);
+  --cc-btn-secondary-hover-bg: var(--color-border);
+  --cc-btn-secondary-hover-color: var(--color-dark);
+  --cc-separator-border-color: var(--color-border);
+  --cc-cookie-category-block-bg: var(--color-surface-alt);
+  --cc-cookie-category-block-border: var(--color-border);
+  --cc-toggle-on-bg: var(--color-accent);
+  --cc-toggle-off-bg: var(--color-border);
+  --cc-toggle-readonly-bg: var(--color-muted);
+  --cc-overlay-bg: rgba(15, 25, 35, 0.65);
+  --cc-modal-border-radius: 12px;
+  --cc-btn-border-radius: 8px;
+  font-size: 0.875rem;
+}
+
+/* ============================================================
    Prose Tailwind Typography — surcharges design system
    ============================================================ */
 @layer utilities {
